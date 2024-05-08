@@ -15,4 +15,4 @@ class run_spi2(Target):
         return ['echo "hello world"']
 
     def get_outputs(self) -> Dict[str, OtlPath]:
-        return {"log": OtlPath.abs_path(f"{self.name}.log")}
+        return {"log": OtlPath.basic_path(f"{self.name}.log")}

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pyotl.interfaces import Target, OtlPath, OtlTargetType, TargetRef
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 @dataclass
@@ -17,8 +17,11 @@ class raw_bash(Target):
     cmds: List[str] = field(default_factory=list)
     deps: List[TargetRef] = field(default_factory=list)
     outputs: Dict[str, str] = field(default_factory=dict)
+    debug_cmds: Optional[List[str]] = None
 
-    def gen_script(self) -> List[str]:
+    def gen_script(self, debug: bool) -> List[str]:
+        if debug and self.debug_cmds:
+            return self.debug_cmds
         return self.cmds
 
     def dependencies(self) -> List[TargetRef]:
@@ -26,7 +29,7 @@ class raw_bash(Target):
 
     def get_outputs(self) -> Dict[str, OtlPath]:
         return {
-            out_name: OtlPath.abs_path(out_path)
+            out_name: OtlPath.basic_path(out_path)
             for out_name, out_path in self.outputs.items()
         }
 
@@ -39,15 +42,11 @@ class run_spi(Target):
 
     seed: int
 
-    def gen_script(self) -> List[str]:
+    def gen_script(self, debug: bool) -> List[str]:
         return ['echo "hello world"']
 
     def get_outputs(self) -> Dict[str, OtlPath]:
-        return {"log": OtlPath.abs_path(f"{self.name}.log")}
-
-    def gen_script_wavedump(self) -> List[str]: ...
-
-    def gen_script_verbose(self) -> List[str]: ...
+        return {"log": OtlPath.basic_path(f"{self.name}.log")}
 
 
 @dataclass
@@ -58,5 +57,5 @@ class raw_bash_build(Target):
     def rule_type() -> OtlTargetType:
         return OtlTargetType.Build
 
-    def gen_script(self) -> List[str]:
+    def gen_script(self, debug: bool) -> List[str]:
         return self.cmds

@@ -23,7 +23,7 @@ class Target(ABC):
     def get_outputs(self) -> Dict[str, OtlPath]:
         return {}
 
-    def gen_script(self) -> List[str]:
+    def gen_script(self, debug: bool = False) -> List[str]:
         raise NotImplementedError
 
     @staticmethod
